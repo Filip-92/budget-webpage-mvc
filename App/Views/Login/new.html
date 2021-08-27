@@ -1,0 +1,42 @@
+{% extends "signup.html" %}
+
+{% block title %}Strona logowania{% endblock %}
+
+{% block body %}
+
+<div class="container">
+				    {% for message in flash_messages %}
+            <div class="alert alert-{{ message.type }}">
+                {{ message.body }}
+            </div>
+			{% endfor %}
+</div>
+
+<div id="container">
+
+    <div style="color: #008000; font-size: 24; font-weight: bold; margin-bottom: 20px; text-align: center;"> Podaj dane do logowania: </div>
+
+    <form action="/login/create" method="post">
+
+		<div class="text-field" style="float: left"><i class="kafelek icon-user" style="margin-top: 5px"></i></div><input type="email" id="inputEmail" name="email" value="{{ email }}"  placeholder="e-mail" onfocus="this.placeholder=' ' " onblur="this.placeholder='e-mail '" required>
+		<div style="clear:both;">
+		</div>
+			
+		<div class="text-field" style="float: left"><i class="kafelek icon-key"></i></div><input type="password" name="password" id="inputPassword" placeholder="hasło" onfocus="this.placeholder=' ' " onblur="this.placeholder='hasło'" maxlength="20" style="width: 250px" required>
+		<div style="clear:both;">
+		</div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" name="remember_me" {% if remember_me %} checked="checked"{% endif %} /> Zapamiętaj mnie
+            </label>
+        </div>
+
+		<input type="submit" value="Zaloguj się">
+		<a href="/signup/new"><button type="button" class="styled" style="margin-top: 10px; margin-bottom: 10px; margin-left: 12%; margin-right: 5%;">Nie posiadasz jeszcze konta? Zarejestruj się!</button></a>
+		<a href="/password/forgot" style="text-align: right;"><h4>Zapomniałeś hasła?</h4></a>
+
+    </form>
+	
+</div>
+
+{% endblock %}

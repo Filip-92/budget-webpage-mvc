@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+
+{% block title %}Ustawienia{% endblock %}
+
+{% block body %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+
+<script>
+
+        $(document).ready(function() {
+
+            /**
+             * Validate the form
+             */
+            $('#editForm').validate({
+                rules: {
+                    categoryName: {
+                        required: true,
+						minlength: 3,
+						maxlength: 20,
+						categoryRegex: true
+                        <!--remote: '/settings/validate-category'-->
+                    },
+                },
+				errorPlacement: function(error, element) {
+					if (element.hasClass('errorCategory')) {
+                  error.insertAfter('#categoryName');    
+					}
+					else {
+                  element.after(error); // default error placement
+					}             
+				}
+			});
+			
+			jQuery.extend(jQuery.validator.messages, {
+			required: "To pole jest wymagane",
+			minlength: "Nazwa musi zawierać przynajmniej 3 znaki.",
+			maxlength: "Nazwa może zawierać maksymalnie 20 znaków.",
+			remote: "Istnieje już taka kategoria.",
+          });
+          
+              jQuery.validator.addMethod("categoryRegex", function(value, element) {
+            return this.optional(element) || /^[a-z0-9\-\_\ś\ź\ż\ó\ą\ę\ć\ń\s]+$/i.test(value);
+    		}, "Nazwa może zawierać tylko litery, liczby, spacje i podkreśliniki.");
+		});
+		  
+</script>
+
+<main onLoad="document.location.reload(true)">
+
+	<article>
+
+		<section>
+
+			<div class="categories">
+
+				<header>
+				
+				<script src="/js/settings.js"></script>
+				
+				<h3 style="margin-bottom: 20px">Ustawienia</h3>
+				
+							{% if settings.errors is not empty %}
+									{% for error in settings.errors %}
+										{{ error }}
+									{% endfor %}
+							{% endif %}
+				
+				<hr style="height: 5px; color: #000000; margin-bottom: 40px;">
+
+				<div id="accordion-item" id="mainSettingsAccordion">
+					  <a class="collapsed card-link" data-toggle="collapse" id="incomeCategories" data-parent="#accordion" href="#collapseOne">
+							<div class="options-button accordion-header icon-money" data-bs-target="#incomeCategoriesCollapse" aria-expanded="false" aria-controls="incomeCategoriesCollapse" style="text-decoration: none">
+								<i class="icon-up"></i><span style="text-decoration: none">Kategoria przychodów</span><i class="icon-down-open"></i>
+							</div>
+					   </a>
+							<div id="collapseOne" class="accordion-collapse collapse">
+								 <div class="card-body accordion-body">
+									<div id="incomeCategoriesBody">
+								{% if incomeCategories is not empty %}
+									{% for incomeCategory in incomeCategories %}
+										<div class="card-header row row1" id="income{{ incomeCategory.id }}">
+											<div class="col">
+												<li>{{ incomeCategory.name }}</li>
+											</div>
+											<div class="col-auto">
+												<button class="btn btn-sm btn-danger p-0" onclick="getCategoryData('delete', 'income', {{ incomeCategory.id }})">
+													<i class="icon-trash"></i>
+												</button>			
+												<button class="btn btn-sm btn-primary p-0" onclick="getCategoryData('edit', 'income', '{{ incomeCategory.id }}')">
+													<i class="icon-pencil"></i>
+												</button>
+											</div>	
+										</div>
+								{% endfor %}
+								{% else %}
+								Brak kategorii przychodów
+								{% endif %}
+									</div>
+
+									 <div class="row gap-2 mt-3 mx-3" id="addCategory">
+										<button class="btn btn-success" onclick="addCategoryHandler('income')" id="addIncomeCategory">Dodaj nową kategorię</button>
+									</div>
+
+								</div>
+								  
+							</div>
+					  <a class="collapsed card-link" data-toggle="collapse" id="expenseCategories" data-parent="#accordion" href="#collapseTwo">
+							<div class="options-button accordion-header icon-money-1">
+								<i class="icon-down"></i>Kategoria wydatków<i class="icon-down-open"></i>
+							</div>
+						</a>
+							<div id="collapseTwo" class="collapse">
+								  <div class="card-body accordion-body">
+									<div id="expenseCategoriesBody">
+									{% if expenseCategories is not empty %}
+									{% for expenseCategory in expenseCategories %}
+										<div class="card-header row row1" id="expense{{ expenseCategory.id }}">
+											<div class="col"><!--style="list-style-type:none;"-->
+												<li>{{ expenseCategory.name }} {% if expenseCategory.expense_limit != 0 %} <span class="text-justify-center" style="text-align: center; color: red;"> Limit:  {{ expenseCategory.expense_limit }} zł </span>{% endif %}</li>
+											</div>
+											<div class="col-auto">
+												<button class="btn btn-sm btn-danger p-0" onclick="getCategoryData('delete', 'expense', {{ expenseCategory.id }})">
+													<i class="icon-trash"></i>
+												</button>
+																
+												<button class="btn btn-sm btn-primary p-0" onclick="getCategoryData('edit', 'expense', '{{ expenseCategory.id }}')">
+													<i class="icon-pencil"></i>
+												</button>
+											</div>
+										</div>
+								{% endfor %}
+								{% else %}
+								Brak kategorii wydatków
+								{% endif %}
+									</div>
+									 <div class="row gap-2 mt-3 mx-3">
+										<button class="btn btn-success" onclick="addCategoryHandler('expense')">Dodaj nową kategorię</button>
+									</div>
+								  </div>
+								</div>
+								 <input id="reloadValue" type="hidden" name="reloadValue" value="" />
+						<a class="collapsed card-link" data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+							<div class="options-button"><i class="icon-credit-card-alt" style="margin-right: 5px;"></i>
+												Sposoby płatności<i class="icon-down-open" style="text-align: right"></i>
+							</div>
+						</a>
+							<div id="collapseThree" class="collapse">
+								  <div class="card-body accordion-body">
+									<div id="paymentCategoriesBody">
+									{% if paymentCategories is not empty %}
+								{% for paymentMethod in paymentCategories %}
+										<div class="card-header row row1" id="payment{{ paymentMethod.id }}">
+											<div class="col" t>
+												<li>{{ paymentMethod.name}}</li>
+											</div>
+											<div class="col-auto">
+												<button class="btn btn-sm btn-danger p-0" onclick="getCategoryData('delete', 'payment', {{ paymentMethod.id }})">
+													<i class="icon-trash"></i>
+												</button>
+																	
+												<button class="btn btn-sm btn-primary p-0" onclick="getCategoryData('edit', 'payment', '{{ paymentMethod.id }}')">
+													<i class="icon-pencil"></i>
+											</button>
+											</div>
+										</div>
+								{% endfor %}
+								{% else %}
+								Brak kategorii płatności
+								{% endif %}
+									</div>
+
+									 <div class="row gap-2 mt-3 mx-3">
+										<button class="btn btn-success" onclick="addCategoryHandler('payment')">Dodaj nową kategorię</button>
+									</div>
+								  </div>
+								</div>
+						<a class="collapsed card-link" data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+							<div class="options-button icon-user">
+												Użytkownik<i class="icon-down-open" style="text-align: right"></i>
+							</div>
+						</a>
+							<div id="collapseFour" class="collapse">
+								  <div class="card-body">
+									<div>
+									
+									<button type="button" id="show" data-toggle="modal" data-target="#showProfile">Wyświetl profil</button>
+
+									<button type="button" id="edit" data-toggle="modal" data-target="#formProfile">Edytuj profil</button>
+									
+									<button type="button" id="delete-items" data-toggle="modal" data-target="#deleteItems">Usuń wszystkie przychody i wydatki</button>
+									
+									<button type="button" id="delete" data-toggle="modal" data-target="#deleteAccount">Usuń konto</button>
+
+									</div>
+								  </div>
+								</div>
+							</div>	
+
+				</header>
+		
+			</div>
+	
+		</section>
+	
+	</article>
+		
+</main>
+		
+		{% endblock %}
+		
+		{% block footer %}
+
+		<footer>
+				
+				<div class="info">
+						Wszelkie prawa zastrzeżone &copy; 2021 Zarządzaj swoim budżetem!
+				</div>
+				
+		</footer>
+		
+	<script src="/js/hideShowPassword.min.js"></script>
+    <script src="/js/app.js"></script>
+
+    <script>
+        $(document).ready(function() {
+
+            var userId = '{{ user.id }}';
+
+            /**
+             * Validate the form
+             */
+            $('#formProfile').validate({
+                rules: {
+                    name: 'required',
+                    email: {
+                        required: true,
+                        email: true,
+                        remote: {
+                            url: '/account/validate-email',
+                            data: {
+                                ignore_id: function() {
+                                    return userId;
+                                }
+                            }
+                        }
+                    },
+                    password: {
+                        minlength: 6,
+                        validPassword: true
+                    }
+                },
+                messages: {
+                    email: {
+                        remote: 'email already taken'
+                    }
+                }
+            })
+		});
+
+            /**
+              * Show password toggle button
+              */
+			  $(document).ready(function() {
+			  
+            $('#inputPassword').hideShowPassword({
+                show: false,
+                innerToggle: 'focus'
+            });
+			});
+    </script>
+	
+	<div class="modal" tabindex="-1" role="dialog" id="formProfile">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<form action="/settings/update" id="formProfile" method='post'>
+					<div class="modal-body">
+							<div id="formId" class="justify-content-center row">
+
+								<h1>Profil</h1>
+
+						{% if user.errors is not empty %}
+								{% for error in user.errors %}
+										{{ error }}
+								{% endfor %}
+							</ul>
+						{% endif %}
+						
+								<div class="form-group">
+									<label for="inputLogin">Login</label><br>
+									<input type="text" id="inputLogin" name="login" placeholder="Login" value="{{ user.login }}" required class="form-control" />
+								</div>
+								<div class="form-group">
+									<label for="inputEmail">Adres e-mail</label><br>
+									<input type="email" id="inputEmail" name="email" placeholder="e-mail" value="{{ user.email }}" required type="email" class="form-control" />
+								</div>
+								<div class="form-group">
+									<label for="inputPassword">Hasło</label><br>
+									<input type="password" id="inputPassword" name="password" placeholder="Hasło" aria-describedby="helpBlock" class="form-control" /><br>
+									<span id="helpBlock" class="help-block">Zostaw puste pole aby zachować aktualne hasło</span>
+								</div>
+							</div>
+					  </div>
+					  <div class="modal-footer">
+						<button type="button" class="btn btn-secondary modal-button" data-dismiss="modal">Anuluj</button>
+						<button type="submit" class="btn btn-success modal-button">Zapisz</button>
+					  </div>
+				</form>
+			</div>
+		</div>
+	</div>
+										
+	<div class="modal" tabindex="-1" role="dialog" id="showProfile">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+					<div class="modal-body" style="text-align: center">
+
+							<h1>Profil</h1>
+
+							<p style="color: green"	>Login: {{ current_user.login }}<br>
+								E-mail: {{ current_user.email }} </p>
+
+					  </div>
+					  <div class="modal-footer">
+						<button type="button" class="btn btn-secondary modal-button" data-dismiss="modal">Wróć</button>
+					  </div>
+			</div>
+		</div>
+	</div>
+										
+	<div class="modal" tabindex="-1" role="dialog" id="deleteItems">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<form action="/settings/deleteItems" id="deleteItems" method='post'>
+					<div class="modal-body text-justify">
+
+							<h2>Czy jesteś pewien, że chcesz trwale usunąć wszystkie swoje przychody i wydatki?</h2>
+
+					  </div>
+					  <div class="modal-footer">
+						<button type="button" class="btn btn-secondary modal-button" data-dismiss="modal">Nie</button>
+						<button type="submit" class="btn btn-success modal-button">Tak</button>
+					  </div>
+				</form>
+			</div>
+		</div>
+	</div>
+										
+		 <!-- Delete Account Modal -->
+	  <div class="modal fade" id="deleteAccount" tabindex="-1" aria-labelledby="deleteAccountLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h2 class="modal-title" id="deleteAccountModalLabel">Usuwanie konta</h2>
+			  <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<form action="/settings/deleteAccount" id="deleteAccount" method='post'>
+				<div class="modal-body">
+
+				  <figure class="text-center h2 mb-5" style="color: red">UWAGA!</br>
+					Ta operacja jest <strong>nieodwracalna!</strong>
+				  </figure>
+				  <figure class="h5 text-center mt-3">
+					Twoje dane zostaną <strong>bezpowrotnie</strong> usunięte!
+					Czy jesteś pewny, że chcesz kontynuować?
+				  </figure>
+
+				</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+			  <button type="submit" class="btn btn-success modal-button">Tak</button>
+		  </div>
+		  </form>
+		  </div>
+		</div>
+		</div>
+
+  <!-- Edit Modal -->
+	  <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h2 class="modal-title" id="editModalLabel">Edytuj kategorię</h2>
+			  <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+			
+			{% if finance.errors is not empty %}
+									{% for error in finance.errors %}
+										{{ error }}
+									{% endfor %}
+							{% endif %}
+			  
+			  <form id="editForm" action="javascript:addCategory()">
+				<label id="cattegoryNameLabel" for="categoryName">
+				  Nazwa kategorii
+				</label>
+				<input class="form-control inputBox errorCategory" type="text" id="categoryName" name="categoryName" aria-label="Nazwa kategorii" aria-describedby="cattegoryNameLabel">
+				<div id="error_message"></div>
+
+				<div id="limitForm" style="display: none;">
+				  <div class="form-check form-switch mt-3 mb-2">
+					<input class="form-check-input" type="checkbox" id="limitCheck">
+					<label class="form-check-label" for="limitCheck">
+					  Limit
+					</label>
+				  </div>
+				
+				  <label id="limitLabel" for="limit">
+					Miesięczny limit dla kategorii
+				  </label>
+				  <div class="input-group">
+					<input class="form-control inputBox" type="number" id="limit" name="valueLimit" min="0" step="0.01" value='0.00' aria-label="Kwota limitu" aria-describedby="limitLabel">
+					<div class="input-group-append">
+					  <span class="input-group-text" style="margin-left: -2px; margin-bottom: 20px;" id="valueLabel">zł</span>
+					</div>
+				  </div>
+				</div>
+			  </form>
+
+			</div>
+			<div class="modal-footer">
+				
+			  <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+			  <button type="submit" id="submitForm" form="editForm" class="btn btn-success">Zatwierdź</button>
+		  </div>
+		  </div><!--onClick="document.location.reload(true)"-->
+		</div>
+	  </div>
+
+  <!-- Delete Category Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="deleteModalLabel">Usuwanie kategorii</h2>
+          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+		  </button>
+        </div>
+        <div class="modal-body">
+          <label id="deleteModalText">Czy na pewno chcesz usunąć kategorię (categoryName)?</label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+          <button type="button" class="btn btn-success" onclick="deleteCategory()">Zatwierdź</button>
+      </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

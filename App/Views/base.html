@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+	<meta name="description" content="Zarządzanie budżetem" />
+	<meta name="keywords" content="budżet, przychód, wydatki" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/css/main2.css" type="text/css" />
+	<link rel="stylesheet" href="/css/fontello.css" type="text/css" />
+	<link rel="shortcut icon" type="image/ico" href="../img/bag.jpg">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&amp;subset=latin-ext" rel="stylesheet">
+</head>
+<body>
+
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+	<!--<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>-->
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+	crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+	crossorigin="anonymous"></script>
+
+<script>
+
+$(function() {
+    $('#nav a[href^="/' + location.pathname.split("/")[1] + '"]').addClass('active');
+});
+
+</script>
+
+<header>
+	
+	<nav class="navbar navbar-dark bg-navbar navbar-expand-lg">
+	
+				<a class="navbar-brand" href="/" style="font-size: 17px"><img src="../img/money.png" width="40" height="35" class="d-inline-block mr-1 align-center mx-2" alt=""> Budżet-Manager</a>
+				
+				{% if current_user %}
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainmenu" aria-controls="mainmenu" aria-expanded="false" aria-label="Przełącznik nawigacji">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+			
+				<div class="collapse navbar-collapse align-items-start" id="mainmenu">
+				
+				<ul class="navbar-nav navbar-toggle-right mr-auto menu navbar-expand-*" id="nav">
+					<li class="nav-item">
+						<a class="nav-link icon-money {{ active_income }}" href="/income"><i style="margin-right: 5px"></i>Dodaj przychód</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link icon-money-1 {{ active_expense }}" href="/expense"><i style="margin-right: 5px"></i>Dodaj wydatek</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link icon-balance-scale {{ active_balance }}" href="/balance"><i style="margin-right: 5px"></i>Przeglądaj bilans</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link icon-cog-outline {{ active_settings }}" href="/settings"><i style="margin-right: 5px"></i>Ustawienia</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link icon-logout" href="/logout"><i style="margin-right: 5px"></i>Wyloguj się</a>
+					</li>
+				</ul>
+				{% else %}
+				<ul class="navbar-nav navbar-toggle-right menu navbar-expand-*">
+				</ul>
+				{% endif %}
+				
+				</div>
+				
+			</nav>
+	
+	<div id="container">
+	
+				{% for message in flash_messages %}
+            <div class="alert alert-{{ message.type }}">
+                {{ message.body }}
+            </div>
+				{% endfor %}
+		
+			{% if current_user %}
+			<h1 class="logo text-center myclass m-auto"><a href="/" class="link" title="Strona główna"><img src="../img//wallet.png" width="60" height="40" alt="portfel"/>Zarządzaj swoim budżetem<img src="../img/wallet.png" width="60" height="40" alt="portfel"/></a></h1>
+			{% else %}
+			<div id="logowanie"><i class="icon-login" style="color: green; margin-right: 5px"></i><a href="/login" class="link" title="Strona logowania">Logowanie</a></div>
+			<div id="rejestracja"><i class="icon-book" style="color: green; margin-right: 5px"></i><a href="/signup/new" class="link" title="Strona rejestracji">Rejestracja</a></div>	
+			<div style="clear:both"></div>
+			{% endif %}
+			
+			<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" preserveAspectRatio="none">
+					
+	</div>
+		
+</header>
+
+        {% block body %}
+        {% endblock %}
+
+
+    {% block footer %}
+<footer>
+				
+	<div class="info">
+			Wszelkie prawa zastrzeżone &copy; 2021 Zarządzaj swoim budżetem!
+	</div>
+		
+</footer>
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+
+{% block title %}Balans{% endblock %}
+
+{% block footer %}
+
+		<footer>
+				
+				<div class="info">
+						Wszelkie prawa zastrzeżone &copy; 2021 Zarządzaj swoim budżetem!
+				</div>
+				
+		</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script>
+
+   let expensesJson = '{{ expenses|json_encode|raw }}'
+
+   let expenses  = JSON.parse(expensesJson);
+
+    const expensesObj = [];
+        for(let i=0; i < expenses.length; i++ )
+   {
+       const singleExpense ={};
+
+       singleExpense.category = (expenses[i][0]);
+       singleExpense.value = (expenses[i][1]);
+
+       expensesObj.push(singleExpense);
+   }
+
+   const labels = [];
+   for(let i=0; i < expensesObj.length; i++ )
+   {
+       labels.push(expensesObj[i]['category']);
+
+   }
+
+   const values = [];
+   for(let i=0; i < expensesObj.length; i++ )
+   {
+       values.push(expensesObj[i]['value']);
+
+   }
+
+   let ctx = document.getElementById("myChart").getContext("2d");;
+
+   var myPieChart = new Chart(ctx, {
+       type: 'pie',
+       data: {
+           labels: labels,
+           datasets: [{
+               label: 'Wydatki',
+               backgroundColor: [
+                   'rgba(255, 99, 132, 0.7)',
+                   'rgba(54, 162, 235, 0.7)',
+                   'rgba(255, 206, 86, 0.7)',
+                   'rgba(94, 234, 36, 0.7)',
+                   'rgba(153, 102, 255, 0.7)',
+                   'rgba(255, 159, 64, 0.7)',
+                   'rgba(156, 208, 114, 0.7)',
+                   'rgba(36, 219, 250, 0.7)',
+                   'rgba(10, 10, 250, 0.7)',
+                   'rgba(80, 10, 160, 0.7)',
+                   'rgba(75, 140, 192, 0.7)'
+               ],
+               borderColor: [
+                   'rgba(255, 99, 132, 1)',
+                   'rgba(54, 162, 235, 1)',
+                   'rgba(255, 206, 86, 1)',
+                   'rgba(94, 234, 36, 1)',
+                   'rgba(153, 102, 255, 1)',
+                   'rgba(255, 159, 64, 1)',
+                   'rgba(156, 208, 114, 1)',
+                   'rgba(36, 219, 250, 1)',
+                   'rgba(10, 10, 250, 1)',
+                   'rgba(80, 10, 160, 1)',
+                   'rgba(75, 140, 192, 1)'
+               ],
+               data: values
+           }],
+       options: {}
+   }});
+
+</script>
+
+<script>
+
+var balanceCanvas = document.getElementById("balanceChart");
+
+Chart.defaults.global.defaultFontFamily = "Lato";
+Chart.defaults.global.defaultFontSize = 18;
+
+var incomeData = {
+  label: 'Przychody [PLN]',
+  data: [{{ totalIncomesAmount }}],
+  backgroundColor: 'rgb(0, 128, 0)',
+  borderWidth: 0,
+};
+
+var expenseData = {
+  label: 'Wydatki [PLN]',
+  data: [{{ totalExpensesAmount }}],
+  backgroundColor: 'rgb(255, 0, 0)',
+  borderWidth: 0,
+
+};
+
+var balanceData = {
+  labels: ["Bilans",],
+  datasets: [incomeData, expenseData]
+};
+
+var chartOptions = {
+  scales: {
+    yAxes: [{
+      ticks: {
+            beginAtZero: true,
+            min: 0
+          }    
+    }]
+  }
+};
+
+var barChart = new Chart(balanceCanvas, {
+  type: 'bar',
+  data: balanceData,
+  options: chartOptions
+});
+
+</script>
+
+{% endblock %}
+
+{% block body %}
+
+{% if balance.errors is not empty %}
+<ul>
+    {% for error in balance.errors %}
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endfor %}
+</ul>
+{% endif %}
+
+    <main>
+	
+				<article>
+		
+					<section>
+		
+						<div class="categories">
+				
+							<header>
+							
+								<span style="float: left;">Zalogowany jako: <span style="color:green">{{ current_user.login }}</span></span>
+								<div style="clear:both;">
+								</div>
+		
+								<h1 class="mt-3">Bilans z wybranego okresu:</h1>
+								
+								<h2>Aktualnie wyświetlany okres zdefiniowany: <span style="color: green">{{ lead }}</span></h2>
+
+								<div id="formId" class="justify-content-center row">
+								
+								<div class="dropdown" style="margin-top: 20px; margin-bottom: 40px;">
+									<button class="btn btn-dark text-success dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<i class="far fa-calendar-alt mr-1" ></i>Wybierz okres
+									</button>
+										<div class="dropdown-menu" aria-labelledby="dropdownMenu">
+												<a href="/balance" class="dropdown-item">Bieżący miesiąc</a>
+												<a href="/balance_previous" class="dropdown-item">Poprzedni miesiąc</a>
+												<a href="/balance_current_year" class="dropdown-item">Bieżący rok</a>
+												<a href="/balance_custom" class="dropdown-item" data-toggle="modal" data-target="#dateModal">Niestandardowy</a>
+										</div>
+								</div>						
+						
+										</div>
+										
+											<hr style="height: 5px; color: #000000;">
+
+											<h3 style="color: green; margin-bottom: 20px;">Przychody</h3>
+											<div class="category">
+													<div class="category_transaction_category">
+															<h4>Kategoria: </h4>
+													</div>
+													<div class="category_amount">
+															<h4>Wysokość przychodu: </h4>
+													</div>
+													<div class="category_date">
+															<h4>Data:</h4>
+													</div>
+													<div class="category_comment">
+															<h4>Komentarz: </h4>
+													</div>
+											</div>
+											<div class="kategoriap">	
+												<div class="column_incomes_category">
+												 {% for income in incomes %}
+												<span class="card">{{ income.Category}}</span><br />
+												{% endfor %}
+												</div>
+												<div class="column_incomes_amount">
+												{% for income in incomes %}
+												<span class="card">{{ income.Amount }} zł</span><br />
+												{% endfor %}
+												</div>
+												<div class="column_incomes_date"> 
+												{% for income in incomes %}
+												<span class="card">{{ income.Date }}</span><br />
+												{% endfor %}
+												</div>
+												<div class="column_incomes_comment">
+												{% for income in incomes %}
+												<span class="card">{{ income.Comment }}</span><br />
+												{% endfor %}												
+												</div>
+											</div>
+											<div style="clear:both;">
+											</div>
+											<tfoot>
+											<tr class="table-success">
+												<th scope="row" class="text-left">Suma:</th>
+												<td id="sum-of-incomes" class="text-right font-weight-bold text-primary h4">
+													{{ totalIncomesAmount }} zł
+												</td>
+											</tr>
+											</tfoot>
+											
+											<hr style="height: 5px; color: #000000;">
+			
+											<h3 style="color: red; margin-bottom: 20px;">Wydatki</h3>
+											<div class="category">
+													<div class="category_transaction_category">
+															<h4>Kategoria: </h4>
+													</div>
+													<div class="category_amount">
+															<h4>Wysokość wydatku: </h4>
+													</div>
+													<div class="category_date">
+															<h4>Data:</h4>
+													</div>
+													<div class="category_comment">
+															<h4>Komentarz: </h4>
+													</div>
+											</div>
+											<div class="kategoriaw">
+												<div class="column_incomes_category">
+												{% for expense in expenses %}
+												<span class="card">{{ expense.Category }}</span><br />
+												{% endfor %}
+												</div>
+												<div class="column_incomes_amount">
+												{% for expense in expenses %}
+												<span class="card">{{ expense.Amount }} zł</span><br />
+												{% endfor %}
+												</div>
+												<div class="column_incomes_date"> 
+												{% for expense in expenses %}
+												<span class="card">{{ expense.Date }}</span><br />
+												{% endfor %}
+												</div>
+												<div class="column_incomes_comment"> 
+												{% for expense in expenses %}
+												<span class="card">{{ expense.Comment }}</span><br />
+												{% endfor %}
+												</div>
+											</div>
+										<div style="clear:both;">
+										</div>
+										<tfoot>
+											<tr class="table-success">
+												<th scope="row" class="text-left">Suma:</th>
+												<td id="sum-of-incomes" class="text-right font-weight-bold text-primary h4">
+													{{ totalExpensesAmount }} zł
+												</td>
+											</tr>
+										</tfoot>
+							
+							<hr style="height: 5px; color: #000000;">
+								
+						<div class="col-12 col-xl-6 my-4" style="float: left">
+							<h3 class="card-title text-center display-4" style="margin-top: 0px;">Bilans</h3>              
+						
+							{% if  ( incomes is empty ) and ( expenses is empty) %}
+							<h2 class="balance1"> Brak danych </h2>
+							{% else %}
+								{% if  (totalIncomesAmount - totalExpensesAmount > 0) %}
+								<div class = "text-field" style="color: green;">{{ balance }} zł</div>
+								<p class="message text-success text-center" style="width: 400px;">Gratulacje. Świetnie zarządzasz finansami!</p>
+								{% endif %}
+								{% if  (totalIncomesAmount - totalExpensesAmount == 0) %}
+								<div class = "text-field" style="color: blue;">{{ balance }} zł</div>
+								<p class="message text-success text-center" style="width: 400px;">Perfectly balanced, as all things should be!</p>
+								{% endif %}
+								{% if  (totalIncomesAmount - totalExpensesAmount < 0) %}
+								<div class = "text-field" style="color: red;">{{ balance }} zł</div>
+								<p class="message text-danger text-center" style="width: 300px;">Uważaj, wpadasz w długi!</p>
+								{% endif %}
+							{% endif %}
+						</div>
+			
+						<div class="chart-cnt col-12 col-xl-6 my-4" style="float: left">
+							<h3 class="display-4 text-center">Wydatki</h3>
+							{% if  expenses is empty %}
+							<h2 class="balance1"> Brak wydatków </h2>
+							{% else %}
+							<div id="chartWrap" style="margin-top: 20px"></div>
+							<canvas id="myChart" width="800" height="400"></canvas>
+							<div id="piechart" class="piechart"></div>
+							{% endif %}
+						</div>
+
+					<div style="clear:both;">
+					</div>
+
+							{% if  ( incomes is empty ) and ( expenses is empty) %}
+							 <h2 class="balance1">Brak danych</h2>
+							{% else %}
+							<div class="balanceChart">
+					<canvas id="balanceChart" width="10" height="20"></canvas></div>
+							{% endif %}
+							
+					</div>
+							
+	</header>
+
+<div class="modal" tabindex="-1" role="dialog" id="dateModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/balances/modal" method='post'>
+                <div class="modal-body">
+						<div id="formId" class="justify-content-center row">
+							<label class="col-form-label" style="text-decoration: underline; color: green;">Wybierz zakres dat:</label>
+							<label class="col-form-label">Od:</label><input type="date" name="first_date">
+							<label class="col-form-label">Do:</label><input type="date" name="second_date">
+						</div>
+				  </div>
+				  <div class="modal-footer">
+					<button type="button" class="btn btn-secondary modal-button" data-dismiss="modal">Anuluj</button>
+                    <button type="submit" class="btn btn-success modal-button">Zapisz</button>
+				  </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

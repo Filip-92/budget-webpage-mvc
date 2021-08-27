@@ -1,0 +1,23 @@
+{% extends 'signup.html' %}
+
+{% block title %}Zapomniałem hasła{% endblock %}
+
+{% block body %}
+
+<div id="container">
+
+    <div style="color: #008000; font-size: 24; font-weight: bold; margin-bottom: 20px; text-align: center;"> Prośba resetu hasła </div>
+
+    <form method="post" action="/password/request-reset">
+
+        <div class="form-group">
+            <label for="inputEmail" style="margin-left: auto; margin-right: auto">Podaj adres e-mail</label>
+            <input type="email" id="inputEmail" name="email" placeholder="Adres e-mail" autofocus required class="form-control" />
+        </div>
+
+        <input type="submit" value="Wyślij prośbę">
+    </form>
+	
+</div>
+
+{% endblock %}

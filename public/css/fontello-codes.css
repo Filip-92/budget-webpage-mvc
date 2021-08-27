@@ -1,0 +1,20 @@
+
+.icon-user:before { content: '\e800'; } /* '' */
+.icon-key:before { content: '\e801'; } /* '' */
+.icon-search:before { content: '\e802'; } /* '' */
+.icon-cog-outline:before { content: '\e803'; } /* '' */
+.icon-logout:before { content: '\e804'; } /* '' */
+.icon-login:before { content: '\e805'; } /* '' */
+.icon-money-1:before { content: '\e806'; } /* '' */
+.icon-mail:before { content: '\e807'; } /* '' */
+.icon-book:before { content: '\e808'; } /* '' */
+.icon-up:before { content: '\e809'; } /* '' */
+.icon-down:before { content: '\e80a'; } /* '' */
+.icon-down-open:before { content: '\e80b'; } /* '' */
+.icon-up-open:before { content: '\e80c'; } /* '' */
+.icon-pencil:before { content: '\e80d'; } /* '' */
+.icon-trash:before { content: '\e80e'; } /* '' */
+.icon-plus-circled:before { content: '\e80f'; } /* '' */
+.icon-money:before { content: '\f0d6'; } /* '' */
+.icon-balance-scale:before { content: '\f24e'; } /* '' */
+.icon-credit-card-alt:before { content: '\f283'; } /* '' */

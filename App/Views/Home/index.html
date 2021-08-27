@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Strona główna{% endblock %}
+
+{% block body %}
+
+<script>
+
+$(function() {
+    $('#nav a[href^="/' + location.pathname.split("/")[1] + '"]').removeClass('active');
+});
+
+</script>
+<main>
+	<article>
+		<section>
+			<div class="categories">
+				<header>
+					<h1 style="margin-top: 20px; margin-bottom: 60px;">
+							{% if current_user %}Cześć <span style="color:green">{{ current_user.login }}</span>,{% endif %} Witaj w aplikacji służącej do zarządzania wydatkami
+							</h1>
+		
+							{% if current_user %}
+							<img src="../img/savings.jpg" class="col-12 col-xl-4 picture mr-5" style="float: left; margin-bottom: 20px; margin-right: 30px;">
+						<span class="text">
+							<p style="text-align: left" class="mx-3">Aplikacja ta pozwala kontrolować zarówno swoje przychody jak i wydatki, za pośrednictwem następujących funkcji: </p>
+							<br>
+								<li style="text-align: left" class="mx-3"> Dodawanie przychodu wraz z wyborem odpowiedniej kategorii, daty i wysokości przychodu</li>
+								<li style="text-align: left" class="mx-3"> Analogicznie dla dodawania wydatku, dodatkowo jest tam również opcja określenia sposobu płatności</li>
+								<li style="text-align: left" class="mx-3"> Przegląd bilansu z wybranego przez użytkownika okresu</li>
+								<br>
+									<blockquote>
+										<p style="text-align: left" class="mx-3">„Lepiej jest siąść i godzinę pomyśleć o swoich pieniądzach, niż przez tydzień na nie pracować”</p>
+										<cite>– Andre Kostolany</cite>
+									</blockquote>
+								</span>
+								<div style="clear:both;">
+							</div>
+							
+							{% else %}
+							<img src="../img/savings1.png" class="image col-12 col-xl-4 mx-3 picture" style="float: left; margin-top: 20px; margin-bottom: 20px; margin-right: 10px;">
+									<blockquote class="col-12 col-xl-12 align-middle mt-5" style="text-align: left; margin-left: 20px; margin-right: 20px;">
+										<p>„Jest tylko jeden sposób, który pozwoli ci zostać bogatym człowiekiem: wydawaj mniej, niż zarabiasz, a różnicę inwestuj”</p>
+										<cite> – Ayn Rand</cite><br><br>
+										<p>„Jeśli kupujesz rzeczy, których nie potrzebujesz, wkrótce będziesz musiał sprzedawać rzeczy, które są ci niezbędne”</p>
+										<cite>– Warren Buffett </cite><br><br>
+										<blockquote>
+											<p style="text-align: left;">Aby korzystać z funkcji witryny należy się zalogować. Zakładki "Dodaj przychód" i "Dodaj wydatek" dadzą Ci możliwość zapisania wydatku bądź przychadu z wybraną przez siebie datą oraz konkretną kategorią tej usługi.</p>
+											<br>
+												<li class="align-middle" style="text-align: left; margin-left: 20px; margin-right: 20px;">Jeśli nie posiadasz jeszcze konta, przejdź do <span style="color: blue">Rejestracji</span> w prawym, górnym rogu ekranu</li>
+												<br>
+													<li style="text-align: left; margin-left: 20px; margin-right: 20px;"> Jeśli posiadasz już konto, przejdź od razu do <span style="color: blue">Logowania</span> w prawym, górnym rogu ekranu</li>
+													<br>
+					<div style="clear:both;">
+					</div>
+					{% endif %}
+						
+				</header>
+			</div>
+		</section>
+	</article>
+</main>
+		
+		{% endblock %}
+		
+		{% block footer %}
+
+		<footer>
+													<div class="info">
+						Wszelkie prawa zastrzeżone &copy; 2021 Zarządzaj swoim budżetem!
+				</div>
+												</footer>
+    {% endblock %}

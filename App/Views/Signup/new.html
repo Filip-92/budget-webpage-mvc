@@ -1,0 +1,108 @@
+{% extends 'signup.html' %}
+
+{% block title %}Strona rejestracji{% endblock %}
+
+{% block footer %}
+    <script src="/js/hideShowPassword.min.js"></script>
+    <script src="/js/app.js"></script>
+	<script src="https://www.google.com/recaptcha/api.js"></script>
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+	
+    <script>
+        $(document).ready(function() {
+
+            /**
+             * Validate the form
+             */
+            $('#formSignup').validate({
+                rules: {
+                    login: 'required',
+                    email: {
+                        required: true,
+                        email: true,
+                        remote: '/account/validate-email'
+                    },
+                    password: {
+                        required: true,
+                        minlength: 8,
+                        validPassword: true
+                    }
+                },
+				errorPlacement: function(error, element) {
+					if (element.hasClass('errorPassword')) {
+                  error.insertBefore('#captcha');    
+					}
+					else {
+                  element.after(error); // default error placement
+					}                                   
+				}
+            });
+			
+			jQuery.extend(jQuery.validator.messages, {
+			required: "To pole jest wymagane",
+			remote: "Podany adres e-mail jest już zajęty.",
+			email: "Podaj właściwy adres e-mail.",
+			validPassword: "Hasło musi zawierać conajmniej jedną literę i jedną cyfrę.",
+			maxlength: jQuery.validator.format("Please enter no more than {0} characters."),
+			minlength: jQuery.validator.format("Hasło musi składać się z co najmniej 8 znaków."),
+		});
+		
+            /**
+              * Show password toggle button
+              */			
+			$(".toggle-password").click(function() {
+
+			  $(this).toggleClass("fa-eye fa-eye-slash");
+			  var input = $($(this).attr("toggle"));
+			  if (input.attr("type") == "password") {
+				input.attr("type", "text");
+			  } else {
+				input.attr("type", "password");
+			  }
+			});
+        });
+    </script>
+
+{% endblock %}
+
+{% block body %}
+
+<div id="container">
+
+	{% if user.errors is not empty %}
+					{% for error in user.errors %}
+						<div style="color: red; font-size: 14px; margin-bottom: 10px; text-align: center;">{{ error }}<br></div>
+					{% endfor %}
+				{% endif %}
+
+    <div style="color: #008000; font-size: 24; font-weight: bold; margin-bottom: 20px; text-align: center;"> Podaj dane do rejestracji: </div>
+
+    <form method="post" action="/signup/create" id="formSignup">
+		
+			<div class="text-field" style="float: left"><i class="kafelek icon-user"></i></div><input id="inputLogin" type="text" autofocus placeholder="login" name="login" value="{{ user.name }}" onfocus="this.placeholder=' ' " onblur="this.placeholder='login'" maxlength="20">
+			<div style="clear:both;">
+			</div>
+			
+			<div class="text-field" style="float: left"><i class="kafelek icon-mail"></i></div><input  id="inputEmail" type="email" placeholder="e-mail" name="email" value="{{ user.email }}" onfocus="this.placeholder=' ' " onblur="this.placeholder='e-mail'">
+			<div style="clear:both;">
+			</div>
+			
+			<div class="text-field" style="float: left"><i class="kafelek icon-key"></i></div><input id="password-field" type="password" placeholder="hasło" name="password" onfocus="this.placeholder=' ' " onblur="this.placeholder='hasło'" maxlength="20" class="errorPassword" style="float: left"><div class="text-field1" style="float: left"><span id="eye" toggle="#password-field" class="fa fa-fw fa-eye field-icon kafelek toggle-password"></span></div>
+			<div style="clear:both;">
+			</div>
+	
+			<div class="g-recaptcha" id="captcha" name="captcha" data-sitekey="6Lcl9GQaAAAAALjibic7LQytPzxnaAlD4UyggyUz" style="margin-top: 20px; margin-left: 10px;"></div>
+			
+			<div id='errorContainer'></div>
+			
+			<input type="submit" value="Zarejestruj się">
+			
+			<a href="/login"><button type="button" class="styled" style="margin-top: 10px; margin-left: 25%; margin-right: 5%;">Masz już konto? Zaloguj się!</button></a>
+
+    </form>
+
+</div>
+
+{% endblock %}
